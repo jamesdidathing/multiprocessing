@@ -1,32 +1,35 @@
 from multiprocessing import Process
-import time
+from multiprocessing import Pool
 import random
 from functools import reduce
-start = time.time()
+import time
 
-def multiply(count):
-    list_random = random.sample(range(1000000), count)
-    return reduce(lambda x, y: x*y, list_random)
+def pool_square(a):
+    print("Process begins here:")
+    square = a*a
+    time.sleep(1)
+    print("Process end.")
 
-count = 80000
-process1 = Process(target=multiply, args=(count,))
-process2 = Process(target=multiply, args=(count,))
-process3 = Process(target=multiply, args=(count,))
-process4 = Process(target=multiply, args=(count,))
+def norm_square(a):
+    square = a*a
+    time.sleep(1)
+    
+def pool():
+    pool_start_t = time.time()
+    pool = Pool() # number of cores that the pool will use. when one core is free, the next process will use it
+    pool.map(pool_square, range(0,9))
+    pool.close
+    pool_end_t = time.time()
+    return pool_end_t - pool_start_t
 
-if __name__ == 'main':
+def norm():
+    norm_start_t = time.time()
+    for i in range(0,9):
+        norm_square(i)
+    norm_end_t = time.time()
+    return norm_end_t - norm_start_t
 
-    process1.start()
-    process2.start()
-    process3.start()
-    process4.start()
+if __name__ == '__main__':
 
-    process1.join()
-    process2.join()
-    process3.join()
-    process4.join()
-
-
-end = time.time()
-total_time = end - start
-print(f"Execution time: {total_time}")
+    print(f"Time taken with Pool is {pool()}")
+    print(f"Time taken without Pool is {norm()}")
