@@ -6,7 +6,7 @@ from functools import reduce
 
 def square(a):
     print("Process begins here:")
-    square = a*a
+    square = a*a*a*a*a*a
     time.sleep(1)
     print("Process end.")
 

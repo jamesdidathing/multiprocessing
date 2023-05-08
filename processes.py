@@ -1,35 +1,70 @@
-from multiprocessing import Process
-from multiprocessing import Pool
-import random
-from functools import reduce
 import time
+import multiprocessing
+import threading
 
-def pool_square(a):
-    print("Process begins here:")
-    square = a*a
-    time.sleep(1)
-    print("Process end.")
+def calculate_primes(n):
+    """
+    Calculate prime numbers up to n.
+    """
+    primes = []
+    for num in range(2, n+1):
+        for i in range(2, num):
+            if num % i == 0:
+                break
+        else:
+            primes.append(num)
+    return primes
 
-def norm_square(a):
-    square = a*a
-    time.sleep(1)
-    
-def pool():
-    pool_start_t = time.time()
-    pool = Pool() # number of cores that the pool will use. when one core is free, the next process will use it
-    pool.map(pool_square, range(0,9))
-    pool.close
-    pool_end_t = time.time()
-    return pool_end_t - pool_start_t
+def run_single_process():
+    """
+    Run calculate_primes() using a single process.
+    """
+    start_time = time.time()
+    calculate_primes(10000)
+    calculate_primes(10000)
+    calculate_primes(10000)
+    calculate_primes(10000)
+    calculate_primes(10000)
+    calculate_primes(10000)
+    calculate_primes(10000)
+    calculate_primes(10000)
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print(f"Single process execution time: {execution_time:.2f} seconds")
 
-def norm():
-    norm_start_t = time.time()
-    for i in range(0,9):
-        norm_square(i)
-    norm_end_t = time.time()
-    return norm_end_t - norm_start_t
+def run_multiprocessing():
+    """
+    Run calculate_primes() using multiprocessing.
+    """
+    with multiprocessing.Pool(processes=8) as pool:
+        start_time = time.time()
+        results = pool.map(calculate_primes, [10000] * 8)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        print(f"Multiprocessing execution time: {execution_time:.2f} seconds")
+        # Combine the results from the processes
+        primes = []
+        for result in results:
+            primes.extend(result)
+        print(f"Found {len(primes)} primes using multiprocessing.")
+
+def run_multithreading():
+    """
+    Run calculate_primes() using multithreading.
+    """
+    start_time = time.time()
+    threads = []
+    for i in range(1):
+        t = threading.Thread(target=calculate_primes, args=(10000,))
+        threads.append(t)
+        t.start()
+    for t in threads:
+        t.join()
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print(f"Multithreading execution time: {execution_time:.2f} seconds")
 
 if __name__ == '__main__':
-
-    print(f"Time taken with Pool is {pool()}")
-    print(f"Time taken without Pool is {norm()}")
+    run_single_process()
+    run_multiprocessing()
+    run_multithreading()
